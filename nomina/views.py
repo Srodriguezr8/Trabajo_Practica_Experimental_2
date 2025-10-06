@@ -44,24 +44,15 @@ def signin(request):
         username = request.POST['username']
         password = request.POST['password']
 
-        try:
-            user_obj = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return render(request, 'signin.html', {
-                "form": AuthenticationForm(),
-                "error": "❌ Usuario no existente."
-            })
-
-        if not check_password(password, user_obj.password):
-            return render(request, 'signin.html', {
-                "form": AuthenticationForm(),
-                "error": "⚠️ El usuario o la contraseña están mal."
-            })
-
         user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('index')
+        if user is None:
+            return render(request, 'signin.html', {
+                "form": AuthenticationForm(),
+                "error": "⚠️ Usuario o contraseña incorrectos."
+            })
+
+        login(request, user)
+        return redirect('index')
 
 @login_required
 def index(request):
