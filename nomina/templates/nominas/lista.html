@@ -7,10 +7,16 @@
 
 <ul class="list-group">
   {% for n in page_obj %}
-    <li class="list-group-item">
-      <a href="{% url 'nomina_detail' n.pk %}">
-        Nómina {{ n.aniomes }} → Ingresos: {{ n.tot_ing }}, Descuentos: {{ n.tot_des }}, Neto: {{ n.neto }}
-      </a>
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <a href="{% url 'nomina_detail' n.pk %}">
+          Nómina {{ n.aniomes }} → Ingresos: {{ n.tot_ing }}, Descuentos: {{ n.tot_des }}, Neto: {{ n.neto }}
+        </a>
+      </div>
+      <div>
+        <a href="{% url 'nomina_edit' n.pk %}" class="btn btn-warning btn-sm me-1">✏️ Editar</a>
+        <a href="{% url 'nomina_delete' n.pk %}" class="btn btn-danger btn-sm">🗑️ Eliminar</a>
+      </div>
     </li>
   {% empty %}
     <li class="list-group-item">No hay nóminas registradas.</li>

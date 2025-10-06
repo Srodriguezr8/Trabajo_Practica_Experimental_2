@@ -2,13 +2,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Avg
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
+from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
+
 from .models import Empleado, Nomina, NominaDetalle
 from .forms import EmpleadoForm, NominaForm, NominaDetalleForm
-from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
-from django.contrib.auth.models import User
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+
 
 def signup(request):
     if request.method == 'GET':
@@ -52,12 +54,6 @@ def signin(request):
             login(request, user)
             return redirect('index')
 
-
-@login_required
-def signout(request):
-    logout(request)
-    return redirect('signin')
-
 @login_required
 def index(request):
     empleados_count = Empleado.objects.count()
@@ -72,12 +68,19 @@ def index(request):
     })
 
 @login_required
+def signout(request):
+    logout(request)
+    return redirect('signin')
+
+
+@login_required
 def lista_empleados(request):
     empleados = Empleado.objects.all().order_by("nombre")
     paginator = Paginator(empleados, 3)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, "empleados/lista.html", {"page_obj": page_obj})
+
 
 @login_required
 def crear_empleado(request):
@@ -89,6 +92,7 @@ def crear_empleado(request):
     else:
         form = EmpleadoForm()
     return render(request, "empleados/form.html", {"form": form})
+
 
 @login_required
 def editar_empleado(request, pk):
@@ -102,6 +106,7 @@ def editar_empleado(request, pk):
         form = EmpleadoForm(instance=empleado)
     return render(request, "empleados/form.html", {"form": form})
 
+
 @login_required
 def eliminar_empleado(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
@@ -110,6 +115,7 @@ def eliminar_empleado(request, pk):
         return redirect("empleado_list")
     return render(request, "empleados/confirmar_eliminar.html", {"empleado": empleado})
 
+
 @login_required
 def lista_nominas(request):
     nominas = Nomina.objects.all().order_by("-aniomes")
@@ -117,6 +123,7 @@ def lista_nominas(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, "nominas/lista.html", {"page_obj": page_obj})
+
 
 @login_required
 def crear_nomina(request):
@@ -129,6 +136,7 @@ def crear_nomina(request):
         form = NominaForm()
     return render(request, "nominas/form.html", {"form": form})
 
+
 @login_required
 def detalle_nomina(request, pk):
     nomina = get_object_or_404(Nomina, pk=pk)
@@ -140,7 +148,7 @@ def detalle_nomina(request, pk):
             detalle = form.save(commit=False)
             detalle.nomina = nomina
             detalle.sueldo = detalle.empleado.sueldo
-            detalle.save() 
+            detalle.save()
             return redirect("nomina_detail", pk=pk)
     else:
         form = NominaDetalleForm()
@@ -151,6 +159,29 @@ def detalle_nomina(request, pk):
         "form": form,
     })
 
+
+@login_required
+def editar_nomina(request, pk):
+    nomina = get_object_or_404(Nomina, pk=pk)
+    if request.method == "POST":
+        form = NominaForm(request.POST, instance=nomina)
+        if form.is_valid():
+            form.save()
+            return redirect("nomina_list")
+    else:
+        form = NominaForm(instance=nomina)
+    return render(request, "nominas/form.html", {"form": form, "nomina": nomina})
+
+
+@login_required
+def eliminar_nomina(request, pk):
+    nomina = get_object_or_404(Nomina, pk=pk)
+    if request.method == "POST":
+        nomina.delete()
+        return redirect("nomina_list")
+    return render(request, "nominas/confirmar_eliminar.html", {"nomina": nomina})
+
+
 @login_required
 def eliminar_detalle_nomina(request, pk):
     detalle = get_object_or_404(NominaDetalle, pk=pk)
@@ -160,6 +191,7 @@ def eliminar_detalle_nomina(request, pk):
         nomina.recalcular_totales()
         return redirect("nomina_detail", pk=nomina.pk)
     return render(request, "nominas/confirmar_eliminar.html", {"detalle": detalle})
+
 
 @login_required
 def obtener_sueldo_empleado(request, pk):

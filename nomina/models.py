@@ -1,7 +1,8 @@
 from django.db import models
 from django.core.validators import RegexValidator, MinValueValidator
-from decimal import Decimal, ROUND_HALF_UP
 from django.core.exceptions import ValidationError
+from decimal import Decimal, ROUND_HALF_UP
+
 
 class Departamento(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
@@ -15,6 +16,7 @@ class Cargo(models.Model):
 
     def __str__(self):
         return self.nombre
+
 
 DEPARTAMENTO_CHOICES = (
     ('Ventas', 'Ventas'),
@@ -32,6 +34,7 @@ CARGO_CHOICES = (
     ('Desarrollador', 'Desarrollador'),
 )
 
+
 class Empleado(models.Model):
     cedula = models.CharField(
         max_length=10,
@@ -42,18 +45,13 @@ class Empleado(models.Model):
         max_length=100,
         validators=[RegexValidator(r'^[A-Za-z\s]+$', 'El nombre solo puede contener letras y espacios')]
     )
-    sueldo = models.DecimalField(max_digits=10, decimal_places=2)
-    departamento = models.CharField(
-        max_length=50,
-        choices=DEPARTAMENTO_CHOICES
-    )
-    cargo = models.CharField(
-        max_length=50,
-        choices=CARGO_CHOICES
-    )
+    sueldo = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
+    departamento = models.CharField(max_length=50, choices=DEPARTAMENTO_CHOICES)
+    cargo = models.CharField(max_length=50, choices=CARGO_CHOICES)
 
     def __str__(self):
         return f"{self.nombre} ({self.cedula})"
+
 
 class Nomina(models.Model):
     aniomes = models.CharField(
@@ -68,6 +66,7 @@ class Nomina(models.Model):
         return f"Nómina {self.aniomes}"
 
     def clean(self):
+        # Valida que el mes sea entre 01 y 12
         if self.aniomes and len(self.aniomes) == 6:
             mes = int(self.aniomes[4:6])
             if not 1 <= mes <= 12:

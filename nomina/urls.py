@@ -14,5 +14,7 @@ urlpatterns = [
     path("nominas/", views.lista_nominas, name="nomina_list"),
     path("nominas/crear/", views.crear_nomina, name="nomina_create"),
     path("nominas/<int:pk>/", views.detalle_nomina, name="nomina_detail"),
+    path("nominas/<int:pk>/editar/", views.editar_nomina, name="nomina_edit"),
+    path("nominas/<int:pk>/eliminar/", views.eliminar_nomina, name="nomina_delete"),
     path("nominas/detalle/<int:pk>/eliminar/", views.eliminar_detalle_nomina, name="nomina_detail_delete"),
 ]
