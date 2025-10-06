@@ -7,50 +7,59 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
-
 from .models import Empleado, Nomina, NominaDetalle
 from .forms import EmpleadoForm, NominaForm, NominaDetalleForm
+from django.contrib.auth.hashers import check_password
 
 
 def signup(request):
     if request.method == 'GET':
-        return render(request, 'signup.html', {"form": UserCreationForm})
+        return render(request, 'signup.html', {"form": UserCreationForm()})
     else:
         if request.POST["password1"] == request.POST["password2"]:
             try:
                 user = User.objects.create_user(
-                    request.POST["username"], password=request.POST["password1"]
+                    request.POST["username"], 
+                    password=request.POST["password1"]
                 )
                 user.save()
                 login(request, user)
                 return redirect('index')
             except IntegrityError:
                 return render(request, 'signup.html', {
-                    "form": UserCreationForm,
+                    "form": UserCreationForm(),
                     "error": "El nombre de usuario ya existe."
                 })
         else:
             return render(request, 'signup.html', {
-                "form": UserCreationForm,
+                "form": UserCreationForm(),
                 "error": "Las contraseñas no coinciden."
             })
 
 
 def signin(request):
     if request.method == 'GET':
-        return render(request, 'signin.html', {"form": AuthenticationForm})
+        return render(request, 'signin.html', {"form": AuthenticationForm()})
     else:
-        user = authenticate(
-            request,
-            username=request.POST['username'],
-            password=request.POST['password']
-        )
-        if user is None:
+        username = request.POST['username']
+        password = request.POST['password']
+
+        try:
+            user_obj = User.objects.get(username=username)
+        except User.DoesNotExist:
             return render(request, 'signin.html', {
-                "form": AuthenticationForm,
-                "error": "Nombre de usuario o contraseña incorrectos."
+                "form": AuthenticationForm(),
+                "error": "❌ Usuario no existente."
             })
-        else:
+
+        if not check_password(password, user_obj.password):
+            return render(request, 'signin.html', {
+                "form": AuthenticationForm(),
+                "error": "⚠️ El usuario o la contraseña están mal."
+            })
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
             login(request, user)
             return redirect('index')
 

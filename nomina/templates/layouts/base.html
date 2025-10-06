@@ -26,12 +26,18 @@
                     </li>
 
                     <!-- 🔐 Bloque de autenticación -->
-                    <li class="nav-item">
-                        {% if user.is_authenticated %}
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
                             <a class="nav-link text-danger" href="{% url 'signout' %}">Cerrar sesión</a>
-                        {% else %}
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
                             <a class="nav-link text-success" href="{% url 'signin' %}">Iniciar sesión</a>
-                        {% endif %}
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-info" href="{% url 'signup' %}">Crear cuenta</a>
+                        </li>
+                    {% endif %}
                     </li>
                 </ul>
             </div>
