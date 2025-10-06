@@ -4,7 +4,61 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from .models import Empleado, Nomina, NominaDetalle
 from .forms import EmpleadoForm, NominaForm, NominaDetalleForm
+from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
+from django.contrib.auth.models import User
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
+def signup(request):
+    if request.method == 'GET':
+        return render(request, 'signup.html', {"form": UserCreationForm})
+    else:
+        if request.POST["password1"] == request.POST["password2"]:
+            try:
+                user = User.objects.create_user(
+                    request.POST["username"], password=request.POST["password1"]
+                )
+                user.save()
+                login(request, user)
+                return redirect('index')
+            except IntegrityError:
+                return render(request, 'signup.html', {
+                    "form": UserCreationForm,
+                    "error": "El nombre de usuario ya existe."
+                })
+        else:
+            return render(request, 'signup.html', {
+                "form": UserCreationForm,
+                "error": "Las contraseñas no coinciden."
+            })
+
+
+def signin(request):
+    if request.method == 'GET':
+        return render(request, 'signin.html', {"form": AuthenticationForm})
+    else:
+        user = authenticate(
+            request,
+            username=request.POST['username'],
+            password=request.POST['password']
+        )
+        if user is None:
+            return render(request, 'signin.html', {
+                "form": AuthenticationForm,
+                "error": "Nombre de usuario o contraseña incorrectos."
+            })
+        else:
+            login(request, user)
+            return redirect('index')
+
+
+@login_required
+def signout(request):
+    logout(request)
+    return redirect('signin')
+
+@login_required
 def index(request):
     empleados_count = Empleado.objects.count()
     promedio_sueldos = Empleado.objects.aggregate(Avg("sueldo"))["sueldo__avg"] or 0
@@ -17,6 +71,7 @@ def index(request):
         "total_neto": total_neto,
     })
 
+@login_required
 def lista_empleados(request):
     empleados = Empleado.objects.all().order_by("nombre")
     paginator = Paginator(empleados, 3)
@@ -24,6 +79,7 @@ def lista_empleados(request):
     page_obj = paginator.get_page(page_number)
     return render(request, "empleados/lista.html", {"page_obj": page_obj})
 
+@login_required
 def crear_empleado(request):
     if request.method == "POST":
         form = EmpleadoForm(request.POST)
@@ -34,6 +90,7 @@ def crear_empleado(request):
         form = EmpleadoForm()
     return render(request, "empleados/form.html", {"form": form})
 
+@login_required
 def editar_empleado(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
     if request.method == "POST":
@@ -45,6 +102,7 @@ def editar_empleado(request, pk):
         form = EmpleadoForm(instance=empleado)
     return render(request, "empleados/form.html", {"form": form})
 
+@login_required
 def eliminar_empleado(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
     if request.method == "POST":
@@ -52,6 +110,7 @@ def eliminar_empleado(request, pk):
         return redirect("empleado_list")
     return render(request, "empleados/confirmar_eliminar.html", {"empleado": empleado})
 
+@login_required
 def lista_nominas(request):
     nominas = Nomina.objects.all().order_by("-aniomes")
     paginator = Paginator(nominas, 3)
@@ -59,7 +118,7 @@ def lista_nominas(request):
     page_obj = paginator.get_page(page_number)
     return render(request, "nominas/lista.html", {"page_obj": page_obj})
 
-
+@login_required
 def crear_nomina(request):
     if request.method == "POST":
         form = NominaForm(request.POST)
@@ -70,7 +129,7 @@ def crear_nomina(request):
         form = NominaForm()
     return render(request, "nominas/form.html", {"form": form})
 
-
+@login_required
 def detalle_nomina(request, pk):
     nomina = get_object_or_404(Nomina, pk=pk)
     detalles = nomina.detalles.all()
@@ -92,7 +151,7 @@ def detalle_nomina(request, pk):
         "form": form,
     })
 
-
+@login_required
 def eliminar_detalle_nomina(request, pk):
     detalle = get_object_or_404(NominaDetalle, pk=pk)
     nomina = detalle.nomina
@@ -102,6 +161,7 @@ def eliminar_detalle_nomina(request, pk):
         return redirect("nomina_detail", pk=nomina.pk)
     return render(request, "nominas/confirmar_eliminar.html", {"detalle": detalle})
 
+@login_required
 def obtener_sueldo_empleado(request, pk):
     empleado = get_object_or_404(Empleado, pk=pk)
     return JsonResponse({'sueldo': str(empleado.sueldo)})
