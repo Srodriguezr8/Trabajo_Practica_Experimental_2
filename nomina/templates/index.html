@@ -1,0 +1,53 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Inicio - Nómina{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title">👥 Empleados</h5>
+        <p class="card-text">
+          Número de empleados: <strong>{{ empleados_count }}</strong><br>
+          Promedio de sueldos: <strong>{{ promedio_sueldos }}</strong>
+        </p>
+        <a href="{% url 'empleado_list' %}" class="btn btn-primary btn-sm">Ver empleados</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title">📅 Última nómina</h5>
+        {% if ultima %}
+          <p class="card-text">
+            <strong>{{ ultima.aniomes }}</strong><br>
+            Ingresos: <span class="text-success">{{ ultima.tot_ing }}</span><br>
+            Descuentos: <span class="text-danger">{{ ultima.tot_des }}</span><br>
+            Neto: <span class="fw-bold">{{ ultima.neto }}</span>
+          </p>
+          <a href="{% url 'nomina_detail' pk=ultima.pk %}" class="btn btn-outline-secondary btn-sm">Ver detalles</a>
+        {% else %}
+          <p class="text-muted">No hay nóminas aún.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <h4>Accesos rápidos</h4>
+  <a href="{% url 'empleado_list' %}" class="btn btn-dark me-2">👥 Gestión de empleados</a>
+  <a href="{% url 'nomina_list' %}" class="btn btn-dark">📑 Gestión de nóminas</a>
+</div>
+
+<div class="text-center mt-4">
+  <img src="{% static 'pinguino.gif' %}" 
+       alt="Pinguino animado"
+       class="img-fluid rounded shadow"
+       style="max-width: 120px; height: auto;">
+</div>
+{% endblock %}

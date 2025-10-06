@@ -1,0 +1,43 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<h1>Empleados</h1>
+
+<a class="btn btn-primary mb-3" href="{% url 'empleado_create' %}">➕ Nuevo empleado</a>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Sueldo</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for e in page_obj %}
+    <tr>
+      <td>{{ e.nombre }}</td>
+      <td>{{ e.sueldo }}</td>
+      <td>
+        <a class="btn btn-sm btn-warning" href="{% url 'empleado_update' e.pk %}">✏️ Editar</a>
+        <a class="btn btn-sm btn-danger" href="{% url 'empleado_delete' e.pk %}">🗑️ Eliminar</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr>
+      <td colspan="3">No hay empleados registrados.</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="pagination mt-3">
+  {% if page_obj.has_previous %}
+    <a class="btn btn-outline-secondary" href="?page={{ page_obj.previous_page_number }}">⬅ Anterior</a>
+  {% endif %}
+  <span class="mx-2">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a class="btn btn-outline-secondary" href="?page={{ page_obj.next_page_number }}">Siguiente ➡</a>
+  {% endif %}
+</div>
+{% endblock %}

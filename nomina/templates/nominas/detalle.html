@@ -1,0 +1,85 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<h1>Detalles de la Nómina {{ nomina.aniomes }}</h1>
+
+<p>
+  Totales: Ingresos {{ nomina.tot_ing }} |
+  Descuentos {{ nomina.tot_des }} |
+  Neto {{ nomina.neto }}
+</p>
+
+<h2>Detalles por empleado</h2>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Empleado</th>
+      <th>Sueldo</th>
+      <th>Bono</th>
+      <th>Ingresos</th>
+      <th>IESS</th>
+      <th>Prestamo</th>
+      <th>Descuentos</th>
+      <th>Neto</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for d in detalles %}
+    <tr>
+      <td>{{ d.empleado.nombre }}</td>
+      <td>{{ d.sueldo }}</td>
+      <td>{{ d.bono }}</td>
+      <td>{{ d.tot_ing }}</td>
+      <td>{{ d.iess }}</td>
+      <td>{{ d.prestamo }}</td>
+      <td>{{ d.tot_des }}</td>
+      <td>{{ d.neto }}</td>
+      <td>
+        <form method="POST" action="{% url 'nomina_detail_delete' d.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger">🗑️ Eliminar</button>
+        </form>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="9">No hay detalles registrados.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<hr>
+<h2>Agregar detalle</h2>
+<form method="POST">
+  {% csrf_token %}
+  {{ form.empleado.label_tag }} {{ form.empleado }}
+  {{ form.sueldo.label_tag }} {{ form.sueldo }}
+  {{ form.bono.label_tag }} {{ form.bono }}
+  {{ form.prestamo.label_tag }} {{ form.prestamo }}
+  <button type="submit" class="btn btn-primary">➕ Agregar</button>
+</form>
+
+<a href="{% url 'nomina_list' %}" class="btn btn-secondary mt-3">⬅ Volver</a>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const empleadoSelect = document.getElementById("id_empleado");
+  const sueldoInput = document.getElementById("id_sueldo");
+
+  empleadoSelect.addEventListener("change", function() {
+    const empleadoId = this.value;
+    if (!empleadoId) {
+      sueldoInput.value = "";
+      return;
+    }
+
+    fetch(`/empleados/${empleadoId}/sueldo/`)
+      .then(response => response.json())
+      .then(data => {
+        sueldoInput.value = data.sueldo;
+      })
+      .catch(error => console.error("Error al obtener el sueldo:", error));
+  });
+});
+</script>
+{% endblock %}

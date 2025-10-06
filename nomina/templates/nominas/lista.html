@@ -1,0 +1,35 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<h1>Nóminas</h1>
+
+<a class="btn btn-primary mb-3" href="{% url 'nomina_create' %}">➕ Nueva nómina</a>
+
+<ul class="list-group">
+  {% for n in page_obj %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <a href="{% url 'nomina_detail' n.pk %}">
+          Nómina {{ n.aniomes }} → Ingresos: {{ n.tot_ing }}, Descuentos: {{ n.tot_des }}, Neto: {{ n.neto }}
+        </a>
+      </div>
+      <div>
+        <a href="{% url 'nomina_edit' n.pk %}" class="btn btn-warning btn-sm me-1">✏️ Editar</a>
+        <a href="{% url 'nomina_delete' n.pk %}" class="btn btn-danger btn-sm">🗑️ Eliminar</a>
+      </div>
+    </li>
+  {% empty %}
+    <li class="list-group-item">No hay nóminas registradas.</li>
+  {% endfor %}
+</ul>
+
+<div class="pagination mt-3">
+  {% if page_obj.has_previous %}
+    <a class="btn btn-outline-secondary" href="?page={{ page_obj.previous_page_number }}">⬅ Anterior</a>
+  {% endif %}
+  <span class="mx-2">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a class="btn btn-outline-secondary" href="?page={{ page_obj.next_page_number }}">Siguiente ➡</a>
+  {% endif %}
+</div>
+{% endblock %}
