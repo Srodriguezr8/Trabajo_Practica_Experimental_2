@@ -52,10 +52,45 @@
 <h2>Agregar detalle</h2>
 <form method="POST">
   {% csrf_token %}
-  {{ form.empleado.label_tag }} {{ form.empleado }}
-  {{ form.sueldo.label_tag }} {{ form.sueldo }}
-  {{ form.bono.label_tag }} {{ form.bono }}
-  {{ form.prestamo.label_tag }} {{ form.prestamo }}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <div class="mb-3 {% if form.empleado.errors %}has-error{% endif %}">
+    {{ form.empleado.label_tag }}
+    {{ form.empleado }}
+    {% for error in form.empleado.errors %}
+      <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3 {% if form.sueldo.errors %}has-error{% endif %}">
+    {{ form.sueldo.label_tag }}
+    {{ form.sueldo }}
+    {% for error in form.sueldo.errors %}
+      <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3 {% if form.bono.errors %}has-error{% endif %}">
+    {{ form.bono.label_tag }}
+    {{ form.bono }}
+    {% for error in form.bono.errors %}
+      <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3 {% if form.prestamo.errors %}has-error{% endif %}">
+    {{ form.prestamo.label_tag }}
+    {{ form.prestamo }}
+    {% for error in form.prestamo.errors %}
+      <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </div>
+
   <button type="submit" class="btn btn-primary">➕ Agregar</button>
 </form>
 

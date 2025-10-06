@@ -19,7 +19,7 @@ class NominaForm(forms.ModelForm):
         model = Nomina
         fields = ['aniomes']
         widgets = {
-            'aniomes': forms.TextInput(attrs={'class': 'input', 'placeholder': 'Ej: 202509'}),
+            'aniomes': forms.NumberInput(attrs={'class': 'input', 'placeholder': 'Ej: 202509'}),
         }
 
 
