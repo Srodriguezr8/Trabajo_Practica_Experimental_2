@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Registro de Sobretiempos</h2>
+<a href="{% url 'sobretiempo_create' %}" class="btn btn-primary mb-3">➕ Nuevo Sobretiempo</a>
+
+<form method="get" class="mb-3">
+  <input type="text" name="q" placeholder="Buscar empleado..." class="form-control mb-2" value="{{ request.GET.q }}">
+  <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
+</form>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Empleado</th>
+      <th>Fecha</th>
+      <th>Tipo</th>
+      <th>Horas</th>
+      <th>Valor</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for s in sobretiempos %}
+    <tr>
+      <td>{{ s.empleado.nombre }}</td>
+      <td>{{ s.fecha_registro }}</td>
+      <td>{{ s.tipo_sobretiempo.descripcion }}</td>
+      <td>{{ s.numero_horas }}</td>
+      <td>{{ s.valor }}</td>
+      <td>
+        <a href="{% url 'sobretiempo_edit' s.id %}" class="btn btn-sm btn-warning">✏️</a>
+        <a href="{% url 'sobretiempo_delete' s.id %}" class="btn btn-sm btn-danger">🗑️</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">No hay registros de sobretiempo.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

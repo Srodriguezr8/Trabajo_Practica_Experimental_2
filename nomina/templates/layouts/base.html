@@ -24,6 +24,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'nomina_list' %}">Nóminas</a>
                     </li>
+                    <li><a href="{% url 'sobretiempo_list' %}">Sobretiempos</a></li>
 
                     <!-- 🔐 Bloque de autenticación -->
                     {% if user.is_authenticated %}

@@ -9,7 +9,6 @@ from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from .models import Empleado, Nomina, NominaDetalle
 from .forms import EmpleadoForm, NominaForm, NominaDetalleForm
-from django.contrib.auth.hashers import check_password
 
 
 def signup(request):
